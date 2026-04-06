@@ -38,8 +38,11 @@ def run_24h_simulation(
     what_if_condition: str = "baseline",
 ) -> pd.DataFrame:
     """
-    Run a 24-hour minute-resolution simulation and return a report-compatible
+    Run a minute-resolution simulation and return a report-compatible
     MultiIndex dataframe indexed by (Patient, Time).
+
+    Default duration is 12 hours (720 minutes). You can override it with
+    ctrl_params["duration_minutes"].
     """
     patient_id = _normalize_text(patient_id, "patient_id")
     controller_type = _normalize_text(controller_type, "controller_type").lower()
@@ -55,6 +58,7 @@ def run_24h_simulation(
     basal_rate, carb_ratio = _get_patient_control_params(patient)
 
     meals = {480: 45.0, 780: 70.0, 1140: 60.0}
+    duration_minutes = int(ctrl_params.get("duration_minutes", 720))
     integral_error = 0.0
     prev_error = 0.0
     target_bg = float(ctrl_params.get("target_bg", 110.0))
@@ -81,7 +85,7 @@ def run_24h_simulation(
             f"Unsupported controller_type '{controller_type}'. Use 'pid' or 'bb'."
         )
 
-    for t in range(1440):
+    for t in range(duration_minutes):
         actual_carbs = meals.get(t, 0.0)
         perceived_carbs = actual_carbs
 

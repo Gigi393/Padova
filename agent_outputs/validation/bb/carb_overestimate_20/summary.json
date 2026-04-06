@@ -1,0 +1,24 @@
+{
+  "controller_type": "bb",
+  "scenario": "carb_overestimate_20",
+  "params": {
+    "cr_multiplier": 0.8
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 93.65,
+    "Hypo": 2.02,
+    "Hyper": 4.33,
+    "MeanBG": 140.61,
+    "StdBG": 19.81,
+    "CV": 14.19,
+    "LBGI": 0.45,
+    "HBGI": 2.41,
+    "Risk": 2.86,
+    "SafetyScore": 97.98,
+    "VariabilityScore": 85.81,
+    "CompositeScore": 94.16
+  },
+  "worst_tir": 75.0,
+  "worst_hypo": 16.25
+}

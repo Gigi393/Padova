@@ -1,0 +1,24 @@
+{
+  "controller_type": "bb",
+  "scenario": "slower_sensor",
+  "params": {
+    "cr_multiplier": 0.8
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 93.09,
+    "Hypo": 1.2,
+    "Hyper": 5.71,
+    "MeanBG": 143.71,
+    "StdBG": 18.61,
+    "CV": 12.94,
+    "LBGI": 0.26,
+    "HBGI": 2.7,
+    "Risk": 2.96,
+    "SafetyScore": 98.8,
+    "VariabilityScore": 87.06,
+    "CompositeScore": 94.2
+  },
+  "worst_tir": 73.06,
+  "worst_hypo": 14.31
+}

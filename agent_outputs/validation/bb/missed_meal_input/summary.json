@@ -1,0 +1,24 @@
+{
+  "controller_type": "bb",
+  "scenario": "missed_meal_input",
+  "params": {
+    "cr_multiplier": 0.8
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 73.34,
+    "Hypo": 0.0,
+    "Hyper": 26.66,
+    "MeanBG": 174.24,
+    "StdBG": 52.63,
+    "CV": 29.21,
+    "LBGI": 0.0,
+    "HBGI": 8.2,
+    "Risk": 8.2,
+    "SafetyScore": 100.0,
+    "VariabilityScore": 70.8,
+    "CompositeScore": 81.08
+  },
+  "worst_tir": 69.72,
+  "worst_hypo": 0.0
+}

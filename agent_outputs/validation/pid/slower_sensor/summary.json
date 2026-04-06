@@ -1,0 +1,27 @@
+{
+  "controller_type": "pid",
+  "scenario": "slower_sensor",
+  "params": {
+    "kp": 0.0002,
+    "ki": 0.0,
+    "kd": 0.0,
+    "target_bg": 110.0
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 93.67,
+    "Hypo": 1.84,
+    "Hyper": 4.49,
+    "MeanBG": 129.96,
+    "StdBG": 22.48,
+    "CV": 17.52,
+    "LBGI": 0.53,
+    "HBGI": 1.73,
+    "Risk": 2.26,
+    "SafetyScore": 98.16,
+    "VariabilityScore": 82.48,
+    "CompositeScore": 93.9
+  },
+  "worst_tir": 56.39,
+  "worst_hypo": 28.33
+}
