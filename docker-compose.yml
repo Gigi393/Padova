@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8000"
+    volumes:
+      - ./app.py:/app/app.py
+      - ./simglucose:/app/simglucose
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - OPENAPS_URL=http://openaps:3000
+    depends_on:
+      - openaps
+    restart: unless-stopped
+
+  openaps:
+    build:
+      context: ../oref0
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../oref0/server.js:/app/server.js
+      - ../oref0/lib:/app/lib
+    restart: unless-stopped
