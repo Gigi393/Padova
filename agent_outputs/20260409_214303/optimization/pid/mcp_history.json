@@ -1,0 +1,292 @@
+{
+  "status": "ok",
+  "total_records": 600,
+  "top_records": [
+    {
+      "timestamp": "2026-04-09T20:47:56Z",
+      "patient_id": "adolescent#001",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.00025,
+        "ki": 0.0,
+        "kd": 0.00025,
+        "target_bg": 110.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 90.63,
+        "Hypo": 0.0,
+        "Hyper": 9.37,
+        "MeanBG": 143.4,
+        "StdBG": 26.92,
+        "CV": 18.77,
+        "LBGI": 0.03,
+        "HBGI": 2.97,
+        "Risk": 3.0,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 81.23,
+        "CompositeScore": 92.5
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:43:04Z",
+      "patient_id": "adolescent#001",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.00025,
+        "ki": 0.0,
+        "kd": 0.0,
+        "target_bg": 110.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 90.56,
+        "Hypo": 0.0,
+        "Hyper": 9.44,
+        "MeanBG": 143.43,
+        "StdBG": 27.02,
+        "CV": 18.84,
+        "LBGI": 0.03,
+        "HBGI": 2.98,
+        "Risk": 3.01,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 81.16,
+        "CompositeScore": 92.45
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:48:18Z",
+      "patient_id": "adult#008",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.00025,
+        "ki": 0.0,
+        "kd": 0.00025,
+        "target_bg": 110.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 90.01,
+        "Hypo": 0.0,
+        "Hyper": 9.99,
+        "MeanBG": 142.29,
+        "StdBG": 25.91,
+        "CV": 18.21,
+        "LBGI": 0.03,
+        "HBGI": 2.72,
+        "Risk": 2.76,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 81.79,
+        "CompositeScore": 92.19
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:43:26Z",
+      "patient_id": "adult#008",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.00025,
+        "ki": 0.0,
+        "kd": 0.0,
+        "target_bg": 110.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 89.94,
+        "Hypo": 0.0,
+        "Hyper": 10.06,
+        "MeanBG": 142.31,
+        "StdBG": 25.97,
+        "CV": 18.25,
+        "LBGI": 0.04,
+        "HBGI": 2.73,
+        "Risk": 2.76,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 81.75,
+        "CompositeScore": 92.14
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:53:00Z",
+      "patient_id": "adolescent#001",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.00022,
+        "ki": 0.0,
+        "kd": 0.0001,
+        "target_bg": 112.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 89.38,
+        "Hypo": 0.0,
+        "Hyper": 10.62,
+        "MeanBG": 146.46,
+        "StdBG": 26.41,
+        "CV": 18.03,
+        "LBGI": 0.01,
+        "HBGI": 3.26,
+        "Risk": 3.27,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 81.97,
+        "CompositeScore": 91.82
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:50:15Z",
+      "patient_id": "adult#008",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.0003,
+        "ki": 0.0,
+        "kd": 0.00015,
+        "target_bg": 120.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 89.38,
+        "Hypo": 0.0,
+        "Hyper": 10.62,
+        "MeanBG": 145.0,
+        "StdBG": 27.15,
+        "CV": 18.72,
+        "LBGI": 0.04,
+        "HBGI": 3.08,
+        "Risk": 3.12,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 81.28,
+        "CompositeScore": 91.76
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:49:37Z",
+      "patient_id": "adult#008",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.00025,
+        "ki": 0.0,
+        "kd": 0.0,
+        "target_bg": 115.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 89.17,
+        "Hypo": 0.0,
+        "Hyper": 10.83,
+        "MeanBG": 145.23,
+        "StdBG": 26.33,
+        "CV": 18.13,
+        "LBGI": 0.02,
+        "HBGI": 3.05,
+        "Risk": 3.07,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 81.87,
+        "CompositeScore": 91.69
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:47:18Z",
+      "patient_id": "adolescent#001",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.0002,
+        "ki": 0.0,
+        "kd": 0.0,
+        "target_bg": 110.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 89.04,
+        "Hypo": 0.0,
+        "Hyper": 10.96,
+        "MeanBG": 147.01,
+        "StdBG": 25.92,
+        "CV": 17.63,
+        "LBGI": 0.0,
+        "HBGI": 3.28,
+        "Risk": 3.29,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 82.37,
+        "CompositeScore": 91.66
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:51:44Z",
+      "patient_id": "adolescent#001",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.0002,
+        "ki": 0.0,
+        "kd": 5e-05,
+        "target_bg": 110.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 89.04,
+        "Hypo": 0.0,
+        "Hyper": 10.96,
+        "MeanBG": 147.0,
+        "StdBG": 25.9,
+        "CV": 17.62,
+        "LBGI": 0.0,
+        "HBGI": 3.28,
+        "Risk": 3.29,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 82.38,
+        "CompositeScore": 91.66
+      }
+    },
+    {
+      "timestamp": "2026-04-09T20:53:21Z",
+      "patient_id": "adult#008",
+      "controller_type": "pid",
+      "params": {
+        "kp": 0.00022,
+        "ki": 0.0,
+        "kd": 0.0001,
+        "target_bg": 112.0
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 88.9,
+        "Hypo": 0.0,
+        "Hyper": 11.1,
+        "MeanBG": 146.05,
+        "StdBG": 25.89,
+        "CV": 17.73,
+        "LBGI": 0.01,
+        "HBGI": 3.12,
+        "Risk": 3.13,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 82.27,
+        "CompositeScore": 91.57
+      }
+    }
+  ],
+  "best_record": {
+    "timestamp": "2026-04-09T20:47:56Z",
+    "patient_id": "adolescent#001",
+    "controller_type": "pid",
+    "params": {
+      "kp": 0.00025,
+      "ki": 0.0,
+      "kd": 0.00025,
+      "target_bg": 110.0
+    },
+    "condition": "baseline",
+    "metrics": {
+      "TIR": 90.63,
+      "Hypo": 0.0,
+      "Hyper": 9.37,
+      "MeanBG": 143.4,
+      "StdBG": 26.92,
+      "CV": 18.77,
+      "LBGI": 0.03,
+      "HBGI": 2.97,
+      "Risk": 3.0,
+      "SafetyScore": 100.0,
+      "VariabilityScore": 81.23,
+      "CompositeScore": 92.5
+    }
+  }
+}

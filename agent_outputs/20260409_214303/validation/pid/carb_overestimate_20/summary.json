@@ -1,0 +1,28 @@
+{
+  "controller_type": "pid",
+  "scenario": "carb_overestimate_20",
+  "params": {
+    "kp": 0.00018,
+    "ki": 0.0,
+    "kd": 2e-05,
+    "target_bg": 115.0
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 61.48,
+    "Hypo": 5.41,
+    "Hyper": 33.12,
+    "MeanBG": 169.84,
+    "StdBG": 75.02,
+    "CV": 43.85,
+    "LBGI": 1.78,
+    "HBGI": 9.66,
+    "Risk": 11.44,
+    "SafetyScore": 94.59,
+    "VariabilityScore": 56.15,
+    "CompositeScore": 70.88
+  },
+  "worst_tir": 43.86,
+  "worst_hypo": 23.8,
+  "report_path": "/Users/fuchuichui/Desktop/simglucose-master/agent_outputs/20260409_214303/validation/pid/carb_overestimate_20"
+}

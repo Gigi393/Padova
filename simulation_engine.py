@@ -8,6 +8,7 @@ from simglucose.actuator.pump import InsulinPump
 from simglucose.analysis.risk import risk_index
 from simglucose.patient.t1dpatient import Action, T1DPatient
 from simglucose.sensor.cgm import CGMSensor
+from simglucose.simulation.scenario_gen import RandomScenario
 
 BASE_DIR = Path(__file__).resolve().parent
 QUEST_FILE = BASE_DIR / "simglucose" / "params" / "Quest.csv"
@@ -41,7 +42,7 @@ def run_24h_simulation(
     Run a minute-resolution simulation and return a report-compatible
     MultiIndex dataframe indexed by (Patient, Time).
 
-    Default duration is 12 hours (720 minutes). You can override it with
+    Default duration is 24 hours (1440 minutes). You can override it with
     ctrl_params["duration_minutes"].
     """
     patient_id = _normalize_text(patient_id, "patient_id")
@@ -57,8 +58,7 @@ def run_24h_simulation(
     pump = InsulinPump.withName("Insulet")
     basal_rate, carb_ratio = _get_patient_control_params(patient)
 
-    meals = {480: 45.0, 780: 70.0, 1140: 60.0}
-    duration_minutes = int(ctrl_params.get("duration_minutes", 720))
+    duration_minutes = int(ctrl_params.get("duration_minutes", 1440))
     integral_error = 0.0
     prev_error = 0.0
     target_bg = float(ctrl_params.get("target_bg", 110.0))
@@ -66,6 +66,7 @@ def run_24h_simulation(
     results = []
     cgm_history = []
     start_time = datetime(2026, 4, 4, 0, 0, 0)
+    meal_scenario = RandomScenario(start_time=start_time, seed=1)
 
     supported_conditions = {
         "baseline",
@@ -85,15 +86,16 @@ def run_24h_simulation(
             f"Unsupported controller_type '{controller_type}'. Use 'pid' or 'bb'."
         )
 
-    for t in range(duration_minutes):
-        actual_carbs = meals.get(t, 0.0)
+    for t in range(duration_minutes + 1):
+        current_time = start_time + timedelta(minutes=t)
+        actual_carbs = float(meal_scenario.get_action(current_time).meal)
         perceived_carbs = actual_carbs
 
         if what_if_condition == "carb_overestimate_20":
             perceived_carbs = actual_carbs * 1.2
         elif what_if_condition == "carb_underestimate_20":
             perceived_carbs = actual_carbs * 0.8
-        elif what_if_condition == "missed_meal_input":
+        elif what_if_condition == "missed_meal_input" and controller_type == "bb":
             perceived_carbs = 0.0
 
         current_cgm = sensor.measure(patient)
@@ -118,9 +120,6 @@ def run_24h_simulation(
             )
             requested_basal = max(0.0, basal_rate + pid_adj)
 
-            if perceived_carbs > 0:
-                requested_bolus = perceived_carbs / carb_ratio
-
         elif controller_type == "bb":
             if perceived_carbs > 0:
                 adjusted_cr = carb_ratio * ctrl_params.get("cr_multiplier", 1.0)
@@ -135,7 +134,7 @@ def run_24h_simulation(
         results.append(
             {
                 "Patient": patient_id,
-                "Time": start_time + timedelta(minutes=t),
+                "Time": current_time,
                 "BG": patient.observation.Gsub,
                 "CGM": current_cgm,
                 "CHO": actual_carbs,

@@ -1,0 +1,25 @@
+{
+  "controller_type": "bb",
+  "scenario": "baseline",
+  "params": {
+    "cr_multiplier": 1.085
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 83.21,
+    "Hypo": 2.42,
+    "Hyper": 14.37,
+    "MeanBG": 145.93,
+    "StdBG": 34.68,
+    "CV": 23.23,
+    "LBGI": 0.64,
+    "HBGI": 4.08,
+    "Risk": 4.72,
+    "SafetyScore": 97.58,
+    "VariabilityScore": 76.77,
+    "CompositeScore": 86.88
+  },
+  "worst_tir": 58.43,
+  "worst_hypo": 32.76,
+  "report_path": "/Users/fuchuichui/Desktop/simglucose-master/agent_outputs/20260409_214303/validation/bb/baseline"
+}

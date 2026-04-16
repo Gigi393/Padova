@@ -1,0 +1,259 @@
+{
+  "status": "ok",
+  "total_records": 600,
+  "top_records": [
+    {
+      "timestamp": "2026-04-09T21:02:29Z",
+      "patient_id": "adolescent#010",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.12
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 145.34,
+        "StdBG": 15.31,
+        "CV": 10.53,
+        "LBGI": 0.0,
+        "HBGI": 2.6,
+        "Risk": 2.6,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 89.47,
+        "CompositeScore": 98.95
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:10:54Z",
+      "patient_id": "adolescent#010",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.11
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 144.57,
+        "StdBG": 15.42,
+        "CV": 10.67,
+        "LBGI": 0.0,
+        "HBGI": 2.52,
+        "Risk": 2.52,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 89.33,
+        "CompositeScore": 98.93
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:00:15Z",
+      "patient_id": "adolescent#010",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.1
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 143.8,
+        "StdBG": 15.56,
+        "CV": 10.82,
+        "LBGI": 0.0,
+        "HBGI": 2.44,
+        "Risk": 2.44,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 89.18,
+        "CompositeScore": 98.92
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:04:24Z",
+      "patient_id": "adult#002",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.2
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 140.2,
+        "StdBG": 15.23,
+        "CV": 10.86,
+        "LBGI": 0.0,
+        "HBGI": 2.0,
+        "Risk": 2.0,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 89.14,
+        "CompositeScore": 98.91
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:07:12Z",
+      "patient_id": "adult#002",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.14
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 138.2,
+        "StdBG": 15.17,
+        "CV": 10.98,
+        "LBGI": 0.0,
+        "HBGI": 1.81,
+        "Risk": 1.81,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 89.02,
+        "CompositeScore": 98.9
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:00:17Z",
+      "patient_id": "adult#002",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.1
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 136.79,
+        "StdBG": 15.25,
+        "CV": 11.15,
+        "LBGI": 0.0,
+        "HBGI": 1.68,
+        "Risk": 1.69,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 88.85,
+        "CompositeScore": 98.89
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:02:32Z",
+      "patient_id": "adult#002",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.12
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 137.5,
+        "StdBG": 15.2,
+        "CV": 11.05,
+        "LBGI": 0.0,
+        "HBGI": 1.74,
+        "Risk": 1.75,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 88.95,
+        "CompositeScore": 98.89
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:10:16Z",
+      "patient_id": "adolescent#010",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.085
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 142.63,
+        "StdBG": 15.81,
+        "CV": 11.08,
+        "LBGI": 0.0,
+        "HBGI": 2.32,
+        "Risk": 2.33,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 88.92,
+        "CompositeScore": 98.89
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:10:56Z",
+      "patient_id": "adult#002",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.11
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 137.14,
+        "StdBG": 15.22,
+        "CV": 11.1,
+        "LBGI": 0.0,
+        "HBGI": 1.71,
+        "Risk": 1.72,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 88.9,
+        "CompositeScore": 98.89
+      }
+    },
+    {
+      "timestamp": "2026-04-09T21:05:16Z",
+      "patient_id": "adolescent#010",
+      "controller_type": "bb",
+      "params": {
+        "cr_multiplier": 1.08
+      },
+      "condition": "baseline",
+      "metrics": {
+        "TIR": 100.0,
+        "Hypo": 0.0,
+        "Hyper": 0.0,
+        "MeanBG": 142.24,
+        "StdBG": 15.91,
+        "CV": 11.19,
+        "LBGI": 0.0,
+        "HBGI": 2.29,
+        "Risk": 2.29,
+        "SafetyScore": 100.0,
+        "VariabilityScore": 88.81,
+        "CompositeScore": 98.88
+      }
+    }
+  ],
+  "best_record": {
+    "timestamp": "2026-04-09T21:02:29Z",
+    "patient_id": "adolescent#010",
+    "controller_type": "bb",
+    "params": {
+      "cr_multiplier": 1.12
+    },
+    "condition": "baseline",
+    "metrics": {
+      "TIR": 100.0,
+      "Hypo": 0.0,
+      "Hyper": 0.0,
+      "MeanBG": 145.34,
+      "StdBG": 15.31,
+      "CV": 10.53,
+      "LBGI": 0.0,
+      "HBGI": 2.6,
+      "Risk": 2.6,
+      "SafetyScore": 100.0,
+      "VariabilityScore": 89.47,
+      "CompositeScore": 98.95
+    }
+  }
+}

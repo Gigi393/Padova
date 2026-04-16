@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 from dataclasses import dataclass
+from datetime import datetime
 from getpass import getpass
 from pathlib import Path
 
@@ -13,18 +14,19 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import requests
 
-from simglucose.analysis.report import report
-from simulation_engine import calculate_metrics, run_24h_simulation
+import MCPserver as mcpserver
 
 BASE_DIR = Path(__file__).resolve().parent
 PATIENT_FILE = BASE_DIR / "simglucose" / "params" / "vpatient_params.csv"
 DEFAULT_SCENARIOS = [
+    "baseline",
     "slower_sensor",
     "missed_meal_input",
     "carb_overestimate_20",
+    "carb_underestimate_20",
 ]
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPTIMIZATION_BUDGET = 10
+OPTIMIZATION_BUDGET = 20
 PROPOSAL_BATCH_SIZE = 5
 
 
@@ -36,6 +38,45 @@ class CandidateResult:
     worst_tir: float
     worst_hypo: float
     patient_count: int
+
+
+ORIGINAL_REPORT = mcpserver.report
+
+
+def _patch_mcp_report() -> None:
+    def wrapped_report(df, cgm_sensor=None, save_path=None):
+        results, ri_per_hour, zone_stats, figs, axes = ORIGINAL_REPORT(
+            df, cgm_sensor=cgm_sensor, save_path=save_path
+        )
+
+        if save_path and figs:
+            ensemble_fig = figs[0]
+            for axis in axes[:2]:
+                legend = axis.get_legend()
+                if legend is not None:
+                    legend.remove()
+                    axis.legend(
+                        loc="center left",
+                        bbox_to_anchor=(1.02, 0.5),
+                        borderaxespad=0.0,
+                        fontsize=8,
+                    )
+            ensemble_fig.set_size_inches(14, 10)
+            ensemble_fig.tight_layout(rect=[0, 0, 0.82, 1])
+            ensemble_fig.savefig(
+                Path(save_path) / "BG_trace.png",
+                bbox_inches="tight",
+                dpi=150,
+            )
+            plt.close(ensemble_fig)
+            plt.close("all")
+
+        return results, ri_per_hour, zone_stats, figs, axes
+
+    mcpserver.report = wrapped_report
+
+
+_patch_mcp_report()
 
 
 def load_all_patients() -> list[str]:
@@ -64,16 +105,13 @@ def normalize_params(controller_type: str, params: dict) -> dict:
         }
 
     if controller_type == "bb":
-        return {
-            "cr_multiplier": round(float(params["cr_multiplier"]), 4),
-        }
+        return {"cr_multiplier": round(float(params["cr_multiplier"]), 4)}
 
     raise ValueError(f"Unsupported controller_type '{controller_type}'.")
 
 
 def params_key(controller_type: str, params: dict) -> str:
-    normalized = normalize_params(controller_type, params)
-    return json.dumps(normalized, sort_keys=True)
+    return json.dumps(normalize_params(controller_type, params), sort_keys=True)
 
 
 def seed_parameter_sets(controller_type: str) -> list[dict]:
@@ -98,17 +136,26 @@ def seed_parameter_sets(controller_type: str) -> list[dict]:
     raise ValueError(f"Unsupported controller_type '{controller_type}'.")
 
 
-def evaluate_candidate(
-    patient_ids: list[str], controller_type: str, params: dict, condition: str = "baseline"
+def evaluate_candidate_via_mcp(
+    patient_ids: list[str], controller_type: str, params: dict
 ) -> CandidateResult:
-    per_patient_metrics = []
-    for patient_id in patient_ids:
-        df = run_24h_simulation(patient_id, controller_type, params, condition)
-        metrics = calculate_metrics(df)
-        metrics["patient_id"] = patient_id
-        per_patient_metrics.append(metrics)
+    normalized_params = normalize_params(controller_type, params)
+    metric_rows = []
 
-    metric_frame = pd.DataFrame(per_patient_metrics)
+    for patient_id in patient_ids:
+        result = mcpserver.tool_run_single_simulation(
+            patient_id, controller_type, normalized_params
+        )
+        if result.get("status") != "ok":
+            raise RuntimeError(
+                f"Simulation failed for patient {patient_id}, controller {controller_type}, "
+                f"params {normalized_params}: {result.get('message')}"
+            )
+        metrics = dict(result["metrics"])
+        metrics["patient_id"] = patient_id
+        metric_rows.append(metrics)
+
+    metric_frame = pd.DataFrame(metric_rows)
     average_metrics = {
         column: round(float(metric_frame[column].mean()), 2)
         for column in metric_frame.columns
@@ -119,7 +166,7 @@ def evaluate_candidate(
 
     return CandidateResult(
         controller_type=controller_type,
-        params=normalize_params(controller_type, params),
+        params=normalized_params,
         average_metrics=average_metrics,
         worst_tir=worst_tir,
         worst_hypo=worst_hypo,
@@ -162,96 +209,6 @@ def save_candidate_rankings(results: list[CandidateResult], output_dir: Path) ->
     return frame
 
 
-def run_population_scenario(
-    patient_ids: list[str],
-    controller_type: str,
-    params: dict,
-    scenario: str,
-    output_dir: Path,
-) -> dict:
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    all_frames = []
-    per_patient_rows = []
-
-    print(
-        f"Running {controller_type} scenario '{scenario}' across {len(patient_ids)} patients..."
-    )
-    for index, patient_id in enumerate(patient_ids, start=1):
-        print(f"  [{controller_type}:{scenario}] patient {index}/{len(patient_ids)}: {patient_id}")
-        df = run_24h_simulation(patient_id, controller_type, params, scenario)
-        metrics = calculate_metrics(df)
-        all_frames.append(df)
-        per_patient_rows.append(
-            {
-                "patient_id": patient_id,
-                "controller_type": controller_type,
-                "scenario": scenario,
-                **metrics,
-            }
-        )
-
-    combined_df = pd.concat(all_frames).sort_index()
-    patient_metrics_df = pd.DataFrame(per_patient_rows)
-    average_metrics = {
-        metric: round(float(patient_metrics_df[metric].mean()), 2)
-        for metric in [
-            "TIR",
-            "Hypo",
-            "Hyper",
-            "MeanBG",
-            "StdBG",
-            "CV",
-            "LBGI",
-            "HBGI",
-            "Risk",
-            "SafetyScore",
-            "VariabilityScore",
-            "CompositeScore",
-        ]
-    }
-    summary = {
-        "controller_type": controller_type,
-        "scenario": scenario,
-        "params": params,
-        "patient_count": len(patient_ids),
-        "average_metrics": average_metrics,
-        "worst_tir": round(float(patient_metrics_df["TIR"].min()), 2),
-        "worst_hypo": round(float(patient_metrics_df["Hypo"].max()), 2),
-    }
-
-    combined_df.to_csv(output_dir / "timeseries.csv")
-    patient_metrics_df.to_csv(output_dir / "patient_metrics.csv", index=False)
-    (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-    report(combined_df, save_path=str(output_dir))
-    plt.close("all")
-    return summary
-
-
-def save_overall_summary(summaries: list[dict], output_dir: Path) -> pd.DataFrame:
-    output_dir.mkdir(parents=True, exist_ok=True)
-    rows = []
-    for summary in summaries:
-        row = {
-            "controller_type": summary["controller_type"],
-            "scenario": summary["scenario"],
-            "patient_count": summary["patient_count"],
-            "worst_tir": summary["worst_tir"],
-            "worst_hypo": summary["worst_hypo"],
-            "params_json": json.dumps(summary["params"], sort_keys=True),
-        }
-        row.update(summary["average_metrics"])
-        rows.append(row)
-
-    frame = pd.DataFrame(rows).sort_values(["controller_type", "scenario"])
-    frame.to_csv(output_dir / "overall_scenario_summary.csv", index=False)
-    (output_dir / "overall_scenario_summary.json").write_text(
-        frame.to_json(orient="records", indent=2), encoding="utf-8"
-    )
-    return frame
-
-
 def build_optimizer_prompts(
     controller_type: str,
     tested_count: int,
@@ -270,10 +227,7 @@ def build_optimizer_prompts(
             '[{"kp": 0.0005, "ki": 0.00005, "kd": 0.0025, "target_bg": 110.0}]'
         )
     else:
-        parameter_guide = (
-            "Basal-bolus parameter:\n"
-            "- cr_multiplier between 0.6 and 1.6\n"
-        )
+        parameter_guide = "Basal-bolus parameter:\n- cr_multiplier between 0.6 and 1.6\n"
         json_shape = '[{"cr_multiplier": 1.0}]'
 
     system_prompt = (
@@ -371,11 +325,10 @@ def propose_next_candidates(
     unique_candidates = []
     for candidate in candidates:
         normalized = normalize_params(controller_type, candidate)
-        candidate_key = params_key(controller_type, normalized)
-        if candidate_key in tested_keys:
+        key = params_key(controller_type, normalized)
+        if key in tested_keys:
             continue
         unique_candidates.append(normalized)
-
     return unique_candidates
 
 
@@ -416,7 +369,7 @@ def optimize_controller_with_llm(
 ) -> list[CandidateResult]:
     print(
         f"Optimizing {controller_type} across {len(patient_ids)} patients "
-        f"with LLM-guided search and budget {OPTIMIZATION_BUDGET}..."
+        f"with MCP-tool execution and LLM-guided search, budget {OPTIMIZATION_BUDGET}..."
     )
     tested_results: list[CandidateResult] = []
     tested_keys: set[str] = set()
@@ -424,7 +377,7 @@ def optimize_controller_with_llm(
     for params in seed_parameter_sets(controller_type):
         normalized = normalize_params(controller_type, params)
         print(f"  [{controller_type}] seed: {normalized}")
-        result = evaluate_candidate(patient_ids, controller_type, normalized, "baseline")
+        result = evaluate_candidate_via_mcp(patient_ids, controller_type, normalized)
         tested_results.append(result)
         tested_keys.add(params_key(controller_type, normalized))
 
@@ -455,13 +408,133 @@ def optimize_controller_with_llm(
                 f"  [{controller_type}] llm set {len(tested_results) + 1}/{OPTIMIZATION_BUDGET}: "
                 f"{params}"
             )
-            result = evaluate_candidate(patient_ids, controller_type, params, "baseline")
+            result = evaluate_candidate_via_mcp(patient_ids, controller_type, params)
             tested_results.append(result)
             tested_keys.add(key)
             if len(tested_results) >= OPTIMIZATION_BUDGET:
                 break
 
     return sorted(tested_results, key=rank_key, reverse=True)
+
+
+def run_population_scenario_via_mcp(
+    patient_ids: list[str],
+    controller_type: str,
+    params: dict,
+    scenario: str,
+    output_dir: Path,
+) -> dict:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    print(
+        f"Running {controller_type} scenario '{scenario}' across {len(patient_ids)} patients via MCP tools..."
+    )
+    result = mcpserver.tool_validate_population_scenario(
+        patient_ids=patient_ids,
+        controller_type=controller_type,
+        optimized_params=params,
+        what_if_condition=scenario,
+        save_path=str(output_dir),
+    )
+    if result.get("status") != "ok":
+        raise RuntimeError(
+            f"Population scenario validation failed for controller {controller_type}, "
+            f"scenario {scenario}: {result.get('message')}"
+        )
+
+    patient_metrics_df = pd.read_csv(output_dir / "patient_metrics.csv")
+    create_boxplot_summary(patient_metrics_df, controller_type, scenario, output_dir)
+    return {
+        "controller_type": result["controller_type"],
+        "scenario": result["scenario"],
+        "params": result["params"],
+        "patient_count": result["patient_count"],
+        "average_metrics": result["average_metrics"],
+        "worst_tir": result["worst_tir"],
+        "worst_hypo": result["worst_hypo"],
+    }
+
+
+def create_boxplot_summary(
+    patient_metrics_df: pd.DataFrame,
+    controller_type: str,
+    scenario: str,
+    output_dir: Path,
+) -> None:
+    tir_values = patient_metrics_df["TIR"].dropna().tolist()
+    mean_tir = patient_metrics_df["TIR"].mean()
+    rng = pd.Series(range(len(tir_values)))
+    jitter = ((rng % 10) - 4.5) * 0.012
+
+    fig, ax = plt.subplots(figsize=(7, 7))
+    box = ax.boxplot(
+        [tir_values],
+        labels=["TIR"],
+        patch_artist=True,
+        showmeans=True,
+        meanprops={
+            "marker": "D",
+            "markerfacecolor": "#d62828",
+            "markeredgecolor": "black",
+            "markersize": 6,
+        },
+        medianprops={"color": "black", "linewidth": 1.5},
+        whiskerprops={"color": "#555555"},
+        capprops={"color": "#555555"},
+        flierprops={
+            "marker": "o",
+            "markerfacecolor": "#f4a261",
+            "markeredgecolor": "#7f5539",
+            "markersize": 4,
+            "alpha": 0.8,
+        },
+    )
+
+    box["boxes"][0].set_facecolor("#2a9d8f")
+    box["boxes"][0].set_alpha(0.65)
+
+    ax.scatter(
+        1 + jitter.to_numpy(),
+        tir_values,
+        s=34,
+        alpha=0.75,
+        color="#264653",
+        edgecolors="white",
+        linewidths=0.5,
+        zorder=3,
+        label="Patients",
+    )
+    ax.axhline(mean_tir, color="#1d3557", linestyle="--", linewidth=1, label="Mean")
+    ax.set_title(f"{controller_type.upper()} - {scenario} - TIR Distribution")
+    ax.set_ylabel("TIR (%)")
+    ax.set_xlim(0.7, 1.3)
+    ax.grid(axis="y", linestyle=":", alpha=0.35)
+    ax.legend(loc="upper right")
+    fig.tight_layout()
+    fig.savefig(output_dir / "patient_boxplot.png", dpi=150)
+    plt.close(fig)
+
+
+def save_overall_summary(summaries: list[dict], output_dir: Path) -> pd.DataFrame:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for summary in summaries:
+        row = {
+            "controller_type": summary["controller_type"],
+            "scenario": summary["scenario"],
+            "patient_count": summary["patient_count"],
+            "worst_tir": summary["worst_tir"],
+            "worst_hypo": summary["worst_hypo"],
+            "params_json": json.dumps(summary["params"], sort_keys=True),
+        }
+        row.update(summary["average_metrics"])
+        rows.append(row)
+
+    frame = pd.DataFrame(rows).sort_values(["controller_type", "scenario"])
+    frame.to_csv(output_dir / "overall_scenario_summary.csv", index=False)
+    (output_dir / "overall_scenario_summary.json").write_text(
+        frame.to_json(orient="records", indent=2), encoding="utf-8"
+    )
+    return frame
 
 
 def build_final_summary_prompts(
@@ -478,7 +551,7 @@ def build_final_summary_prompts(
         "Summarize the optimization and scenario validation results.\n\n"
         "Requirements:\n"
         "- Identify the best PID parameters and best BB parameters.\n"
-        "- Compare the two controllers on baseline optimization and on the three scenarios.\n"
+        "- Compare the two controllers on baseline optimization and on the validated scenarios.\n"
         "- Mention TIR, Hypo, CV, and CompositeScore.\n"
         "- State which controller is stronger overall and why.\n"
         "- Return a short section called recommended_params with JSON for both controllers.\n"
@@ -493,8 +566,8 @@ def build_final_summary_prompts(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Use OpenRouter to steer PID and BB optimization, validate the winners "
-            "across three scenarios for all virtual patients, and write a final summary."
+            "Use MCP tools for controller simulations, OpenRouter for optimization proposals, "
+            "and generate population-level scenario summaries."
         )
     )
     parser.add_argument(
@@ -506,7 +579,7 @@ def parse_args() -> argparse.Namespace:
         "--scenarios",
         nargs="*",
         default=DEFAULT_SCENARIOS,
-        help="Three scenarios to evaluate after optimization.",
+        help="Scenarios to evaluate after optimization.",
     )
     parser.add_argument(
         "--model",
@@ -537,7 +610,8 @@ def main() -> None:
     if not api_key:
         raise ValueError("An OpenRouter API key is required.")
 
-    output_dir = BASE_DIR / args.output_dir
+    run_stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = BASE_DIR / args.output_dir / run_stamp
     optimization_dir = output_dir / "optimization"
     validation_dir = output_dir / "validation"
     llm_dir = output_dir / "llm"
@@ -545,15 +619,27 @@ def main() -> None:
     patient_ids = load_all_patients()
     print(f"Loaded {len(patient_ids)} virtual patients.")
 
+    mcpserver.tool_reset_history()
     pid_results = optimize_controller_with_llm(
         patient_ids, "pid", api_key, args.model, args.app_url, args.app_name
     )
+    pid_history = mcpserver.tool_get_history(controller_type="pid", top_n=10)
+
+    mcpserver.tool_reset_history()
     bb_results = optimize_controller_with_llm(
         patient_ids, "bb", api_key, args.model, args.app_url, args.app_name
     )
+    bb_history = mcpserver.tool_get_history(controller_type="bb", top_n=10)
 
     pid_ranking_frame = save_candidate_rankings(pid_results, optimization_dir / "pid")
     bb_ranking_frame = save_candidate_rankings(bb_results, optimization_dir / "bb")
+
+    (optimization_dir / "pid" / "mcp_history.json").write_text(
+        json.dumps(pid_history, indent=2), encoding="utf-8"
+    )
+    (optimization_dir / "bb" / "mcp_history.json").write_text(
+        json.dumps(bb_history, indent=2), encoding="utf-8"
+    )
 
     best_pid = pid_results[0]
     best_bb = bb_results[0]
@@ -566,8 +652,8 @@ def main() -> None:
 
     scenario_summaries = []
     for controller_type, candidate in [("pid", best_pid), ("bb", best_bb)]:
-        for scenario in args.scenarios[:3]:
-            summary = run_population_scenario(
+        for scenario in args.scenarios:
+            summary = run_population_scenario_via_mcp(
                 patient_ids,
                 controller_type,
                 candidate.params,

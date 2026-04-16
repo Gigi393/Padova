@@ -1,0 +1,3 @@
+rank,controller_type,params_json,worst_tir,worst_hypo,patient_count,param_kp,param_ki,param_kd,param_target_bg,TIR,Hypo,Hyper,MeanBG,StdBG,CV,LBGI,HBGI,Risk,SafetyScore,VariabilityScore,CompositeScore,param_cr_multiplier
+1,pid,"{""kd"": 2e-05, ""ki"": 0.0, ""kp"": 0.00018, ""target_bg"": 115.0}",43.86,23.8,30,0.00018,0.0,2e-05,115.0,61.48,5.41,33.12,169.84,75.02,43.85,1.78,9.66,11.44,94.59,56.15,70.88,
+2,bb,"{""cr_multiplier"": 1.085}",58.43,32.76,30,,,,,83.21,2.42,14.37,145.93,34.68,23.23,0.64,4.08,4.72,97.58,76.77,86.88,1.085

@@ -1,0 +1,28 @@
+{
+  "controller_type": "pid",
+  "scenario": "slower_sensor",
+  "params": {
+    "kp": 0.00018,
+    "ki": 0.0,
+    "kd": 2e-05,
+    "target_bg": 115.0
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 58.49,
+    "Hypo": 7.82,
+    "Hyper": 33.69,
+    "MeanBG": 170.28,
+    "StdBG": 81.97,
+    "CV": 48.62,
+    "LBGI": 3.44,
+    "HBGI": 10.24,
+    "Risk": 13.69,
+    "SafetyScore": 92.18,
+    "VariabilityScore": 51.87,
+    "CompositeScore": 67.94
+  },
+  "worst_tir": 40.6,
+  "worst_hypo": 39.14,
+  "report_path": "/Users/fuchuichui/Desktop/simglucose-master/agent_outputs/20260409_214303/validation/pid/slower_sensor"
+}

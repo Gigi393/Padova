@@ -1,0 +1,25 @@
+{
+  "controller_type": "bb",
+  "scenario": "missed_meal_input",
+  "params": {
+    "cr_multiplier": 1.085
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 39.12,
+    "Hypo": 0.0,
+    "Hyper": 60.88,
+    "MeanBG": 306.64,
+    "StdBG": 144.55,
+    "CV": 44.01,
+    "LBGI": 0.0,
+    "HBGI": 34.16,
+    "Risk": 34.16,
+    "SafetyScore": 100.0,
+    "VariabilityScore": 55.99,
+    "CompositeScore": 59.07
+  },
+  "worst_tir": 37.4,
+  "worst_hypo": 0.0,
+  "report_path": "/Users/fuchuichui/Desktop/simglucose-master/agent_outputs/20260409_214303/validation/bb/missed_meal_input"
+}

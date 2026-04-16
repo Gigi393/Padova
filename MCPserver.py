@@ -1,4 +1,5 @@
 import itertools
+import json
 import os
 from datetime import datetime
 
@@ -58,6 +59,15 @@ def _label_run(df: pd.DataFrame, run_label: str) -> pd.DataFrame:
     labeled["Patient"] = run_label
     labeled = labeled.set_index(["Patient", "Time"])
     return labeled
+
+
+def _average_metric_dict(metric_rows: list[dict]) -> dict:
+    metric_frame = pd.DataFrame(metric_rows)
+    return {
+        column: round(float(metric_frame[column].mean()), 2)
+        for column in metric_frame.columns
+        if column != "patient_id"
+    }
 
 
 def _build_run_record(
@@ -205,16 +215,23 @@ def tool_validate_scenarios(
         df_base, base_metrics = _simulate_and_record(
             patient_id, controller_type, optimized_params, "baseline"
         )
-        df_pert, pert_metrics = _simulate_and_record(
-            patient_id, controller_type, optimized_params, condition
-        )
-
-        comparison_df = pd.concat(
-            [
-                _label_run(df_base, f"{patient_id}|baseline"),
-                _label_run(df_pert, f"{patient_id}|{condition}"),
-            ]
-        )
+        if condition == "baseline":
+            df_pert = df_base
+            pert_metrics = base_metrics
+            comparison_df = _label_run(df_base, f"{patient_id}|baseline")
+        else:
+            df_pert, pert_metrics = _simulate_and_record(
+                patient_id,
+                controller_type,
+                optimized_params,
+                condition,
+            )
+            comparison_df = pd.concat(
+                [
+                    _label_run(df_base, f"{patient_id}|baseline"),
+                    _label_run(df_pert, f"{patient_id}|{condition}"),
+                ]
+            )
 
         save_path = os.path.abspath(f"results_{patient_id}_{controller_type}_{condition}")
         os.makedirs(save_path, exist_ok=True)
@@ -291,6 +308,71 @@ def tool_validate_condition_suite(
             "worst_case_tir": round(worst_tir, 2),
             "worst_case_hypo": round(worst_hypo, 2),
         }
+    except Exception as exc:
+        return {"status": "error", "message": str(exc)}
+
+
+@mcp.tool()
+def tool_validate_population_scenario(
+    patient_ids: list[str],
+    controller_type: str,
+    optimized_params: dict,
+    what_if_condition: str,
+    save_path: str | None = None,
+) -> dict:
+    """
+    Run one scenario across multiple patients, save a combined ensemble report,
+    and return aggregate per-patient metrics.
+    """
+    try:
+        if not patient_ids:
+            raise ValueError("patient_ids must contain at least one patient.")
+
+        controller_type = _normalize_controller_type(controller_type)
+        condition = _normalize_condition(what_if_condition)
+        normalized_patient_ids = [_normalize_patient_id(patient_id) for patient_id in patient_ids]
+
+        combined_frames = []
+        per_patient_rows = []
+
+        for patient_id in normalized_patient_ids:
+            df, metrics = _simulate_and_record(
+                patient_id, controller_type, optimized_params, condition
+            )
+            combined_frames.append(df)
+            per_patient_rows.append({"patient_id": patient_id, **metrics})
+
+        combined_df = pd.concat(combined_frames).sort_index()
+        patient_metrics_df = pd.DataFrame(per_patient_rows)
+        average_metrics = _average_metric_dict(per_patient_rows)
+        worst_tir = round(float(patient_metrics_df["TIR"].min()), 2)
+        worst_hypo = round(float(patient_metrics_df["Hypo"].max()), 2)
+
+        if save_path is None or not save_path.strip():
+            save_path = os.path.abspath(
+                f"results_population_{controller_type}_{condition}"
+            )
+        else:
+            save_path = os.path.abspath(save_path)
+        os.makedirs(save_path, exist_ok=True)
+
+        patient_metrics_df.to_csv(os.path.join(save_path, "patient_metrics.csv"), index=False)
+        summary = {
+            "controller_type": controller_type,
+            "scenario": condition,
+            "params": optimized_params,
+            "patient_count": len(normalized_patient_ids),
+            "average_metrics": average_metrics,
+            "worst_tir": worst_tir,
+            "worst_hypo": worst_hypo,
+            "report_path": save_path,
+        }
+        with open(os.path.join(save_path, "summary.json"), "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2)
+
+        report(combined_df, save_path=save_path)
+
+        return {"status": "ok", **summary}
     except Exception as exc:
         return {"status": "error", "message": str(exc)}
 

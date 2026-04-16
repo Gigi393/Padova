@@ -1,0 +1,25 @@
+{
+  "controller_type": "bb",
+  "scenario": "carb_underestimate_20",
+  "params": {
+    "cr_multiplier": 1.085
+  },
+  "patient_count": 30,
+  "average_metrics": {
+    "TIR": 76.56,
+    "Hypo": 0.92,
+    "Hyper": 22.52,
+    "MeanBG": 159.91,
+    "StdBG": 36.37,
+    "CV": 21.81,
+    "LBGI": 0.22,
+    "HBGI": 5.85,
+    "Risk": 6.07,
+    "SafetyScore": 99.08,
+    "VariabilityScore": 78.19,
+    "CompositeScore": 83.48
+  },
+  "worst_tir": 51.63,
+  "worst_hypo": 22.48,
+  "report_path": "/Users/fuchuichui/Desktop/simglucose-master/agent_outputs/20260409_214303/validation/bb/carb_underestimate_20"
+}
