@@ -1,3 +1,17 @@
+This LLM-implemented version of simglucose is a derived repository based on the Padova model. It introduces enhanced functionality for controller parameter optimization and batch simulation.
+
+To reproduce the experiments conducted by team AAA_wholesale, please run agent.py using your specific API key via the CLI:
+
+```bash
+python agent.py --api-key "YOUR_API_KEY"
+```
+
+The original repository can be found here: [https://github.com/ImperialGlobalSingapore/simglucose/tree/master?tab=readme-ov-file](https://github.com/ImperialGlobalSingapore/simglucose)
+
+The original instructions for simglucose are listed below.
+
+
+
 # simglucose
 
 [![Downloads](https://static.pepy.tech/badge/simglucose)](https://pepy.tech/project/simglucose)
